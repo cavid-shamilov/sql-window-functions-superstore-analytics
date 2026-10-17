@@ -73,38 +73,100 @@ ntile(4) over ( order by sales desc) as Quartile_Group
 from train
 ```
 
-Task 6:
+Task 6: Assign a percentile ranking (PERCENT_RANK()) to each order based on its Sales amount in ascending order, to see the relative standing of each sale. Display Order_ID, Sales, and the calculated percentile rank.
 
 ```sql
-
+select Order_ID,
+Sales,	
+cast(PERCENT_RANK () over ( order by sales asc) as decimal(10,4)) 
+from train
 ```
 
 Task 7:
 
 ```sql
-
+select Order_ID,
+Sales,	
+cast(cume_dist  () over ( order by sales asc) as decimal(10,4)) 
+from train
 ```
 
 Task 8: 
 
 ```sql
-
+with ranked_sales as (
+select Category,
+Product_Name,
+sales,
+row_number () over (partition by category order by sales desc) as Sales_Rank
+from train
+)
+select Category,
+product_name,
+sales,
+Sales_Rank
+from ranked_sales 
+where Sales_Rank<=2
 ```
 
-Task 9:
+Task 9: Assign a sequential ranking to all orders across the entire dataset based on Sales in descending order. If two orders have the exact same sales amount, they should receive the same rank, but the next rank should skip numbers accordingly (e.g., 1, 2, 2, 4). Display Order_ID, Sales, and the calculated rank.
 
 ```sql
-
+select Order_ID,
+sales,
+rank() over (order by sales desc) 
+from train
 ```
 
-Task 10:
+Task 10: Find the top 1 highest sales record for each combination of Region and Category. Display Region, Category, Product_Name, Sales, and the calculated rank
 
 ```sql
-
+with RankedSales as (
+select
+Region,
+Category,
+Product_Name,
+Sales,
+row_number () over (partition by Region, Category order by Sales desc) as Sales_Rank
+from train
+)
+select
+Region,
+Category,
+Product_Name,
+Sales,
+Sales_Rank
+from RankedSales
+where Sales_Rank = 1
 ```
 
 Task 11:
+
+```sql
+
+```
+
 Task 12:
+
+```sql
+
+```
+
 Task 13:
+
+```sql
+
+```
+
 Task 14:
+
+```sql
+
+```
+
 Task 15:
+
+```sql
+
+```
+
