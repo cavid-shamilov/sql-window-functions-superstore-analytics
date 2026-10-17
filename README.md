@@ -82,7 +82,7 @@ cast(PERCENT_RANK () over ( order by sales asc) as decimal(10,4))
 from train
 ```
 
-Task 7:
+Task 7: Calculate the cumulative distribution (CUME_DIST()) of each order based on the Sales amount in ascending order, to see the relative position of a value within a group of values. Display Order_ID, Sales, and the calculated cumulative distribution value.
 
 ```sql
 select Order_ID,
@@ -91,7 +91,7 @@ cast(cume_dist  () over ( order by sales asc) as decimal(10,4))
 from train
 ```
 
-Task 8: 
+Task 8: Find the top 2 highest sales records for each Category using ROW_NUMBER(). Display Category, Product_Name, Sales, and the row number.
 
 ```sql
 with ranked_sales as (
