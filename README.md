@@ -199,7 +199,7 @@ Sales_Rank
 from Ranked_Sales
 ```
 
-Task 14: For each Region, find the orders that fall into the top 20% of sales by using PERCENT_RANK() greater than or equal to 0.80. d-Display orders where the percentile rank is >=0.80% within each region. Display Region, Product_Name, Sales, and the calculated percentile rank
+Task 14: For each Region, find the orders that fall into the top 20% of sales by using PERCENT_RANK() greater than or equal to 0.80. Display orders where the percentile rank is >=0.80% within each region. Display Region, Product_Name, Sales, and the calculated percentile rank
 
 ```sql
 with Ranked_Sales as (
@@ -220,7 +220,7 @@ from Ranked_Sales
 where Percent_Rank >= 0.80
 ```
 
-Task 15:
+Task 15: For each Segment, assign a dense rank to all products based on their Sales in descending order, and also calculate the overall total sales per product using window aggregation. Display Segment, Product_Name, Sales, the dense rank, and the calculated segment total sales.
 
 ```sql
 with Ranked_Sales as (
