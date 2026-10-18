@@ -140,33 +140,105 @@ from RankedSales
 where Sales_Rank = 1
 ```
 
-Task 11:
+Task 11: Find the bottom 3 lowest sales records for each Region based on the Sales amount in ascending order. Display Region, Product_Name, Sales, and the calculated rank
 
 ```sql
+with ranked_sales as (
 
+select region,
+Product_Name,
+sales,
+row_number () over (partition by region order by Sales asc) as Sales_Rank
+from train
+)
+select region,
+product_name,
+sales,
+Sales_Rank
+from ranked_sales
+where Sales_Rank<=3
 ```
 
-Task 12:
+Task 12: Rank all customers based on their total sales across all orders in descending order. Display Customer_ID, Customer_Name, total calculated sales, and their rank.
 
 ```sql
-
+WITH RankedSales as (
+select 
+Customer_ID,
+Customer_Name,
+sum(Sales) as Total_Sales,
+dense_rank () over (order by  sum(Sales) desc) as Sales_Rank
+from train
+group by Customer_ID, Customer_Name
+)
+select 
+Customer_ID,
+Customer_Name,
+Total_Sales,
+Sales_Rank
+from RankedSales;
 ```
 
-Task 13:
+Task 13: Divide the orders within each Category into 2 equal halves (using NTILE(2)), ordered by Sales in descending order. Display Category, Product_Name, Sales, and the calculated group number.
 
 ```sql
+with Ranked_Sales as (
+select 
+category,
+product_name,
+sales,
+ntile(2)  over (partition by category order by sales desc) as Sales_Rank
+from train
 
+)
+select 
+category,
+product_name,
+sales,
+Sales_Rank
+from Ranked_Sales
 ```
 
-Task 14:
+Task 14: For each Region, find the orders that fall into the top 20% of sales by using PERCENT_RANK() greater than or equal to 0.80. d-Display orders where the percentile rank is >=0.80% within each region. Display Region, Product_Name, Sales, and the calculated percentile rank
 
 ```sql
+with Ranked_Sales as (
+select 
+Region,
+product_name,
+sales,
+cast(PERCENT_RANK () over (partition by region order by sales asc) as decimal(10,4)) as Percent_Rank
+from train
 
+)
+select 
+Region,
+product_name,
+sales,
+Percent_Rank
+from Ranked_Sales
+where Percent_Rank >= 0.80
 ```
 
 Task 15:
 
 ```sql
+with Ranked_Sales as (
+select 
+Segment,
+product_name,
+sales,
+sum(sales) over (partition by segment ) as Segment_Total_Sales,
+dense_rank () over (partition by segment order by sales desc) as Sales_Rank
+from train
 
+)
+select 
+Segment,
+product_name,
+sales,
+Segment_Total_Sales,
+Sales_Rank
+from Ranked_Sales
 ```
 
