@@ -242,3 +242,103 @@ Sales_Rank
 from Ranked_Sales
 ```
 
+Task 16: Calculate the total sales for each row alongside the individual row details using an aggregate window function without partition (or across the whole table). Display Category, Product_Name, Sales, and the total overall sales across all rows.
+
+```sql
+select
+category,
+product_name,
+sales,
+sum(sales) over () as [Total Sales]
+from train
+```
+
+Task 17: Calculate the total sales for each Category alongside each product's sales, so that every row shows its own product sales and the total sales of its respective category. Display Category, Product_Name, Sales, and the category total sales.
+
+```sql
+
+```
+
+Task 18:
+
+```sql
+select
+category,
+product_name,
+sales,
+sum(sales) over (partition by category) as [Total Sales by Category]
+from train
+```
+
+Task 19: Calculate the average sales for each Region alongside each order's sales. Display Region, Product_Name, Sales, and the average sales of the respective region.
+
+```sql
+select
+Region,
+product_name,
+sales,
+avg(sales) over (partition by region) as [Average Sales by Region]
+from train
+```
+
+Task 20: Calculate the running total (cumulative sum) of sales ordered by Sales in ascending order across the dataset. Display Product_Name, Sales, and the cumulative running total
+
+```sql
+
+```
+
+Task 21:
+
+```sql
+
+```
+
+Task 22:
+
+```sql
+
+```
+
+Task 23:
+
+```sql
+
+```
+
+Task 24:
+
+```sql
+
+```
+
+Task 25:
+
+```sql
+
+```
+
+Task 26:
+
+```sql
+
+```
+
+Task 27:
+
+```sql
+
+```
+
+Task 28:
+
+```sql
+
+```
+
+Task 29:
+
+```sql
+
+```
+
+Task 30:
