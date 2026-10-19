@@ -256,18 +256,23 @@ from train
 Task 17: Calculate the total sales for each Category alongside each product's sales, so that every row shows its own product sales and the total sales of its respective category. Display Category, Product_Name, Sales, and the category total sales.
 
 ```sql
-
-```
-
-Task 18:
-
-```sql
 select
 category,
 product_name,
 sales,
 sum(sales) over (partition by category) as [Total Sales by Category]
 from train
+```
+
+Task 18: Calculate the average sales for each Region alongside each order's sales. Display Region, Product_Name, Sales, and the average sales of the respective region.
+
+```sql
+select
+Region,
+product_name,
+sales,
+avg(sales) over (partition by region) as [Average Sales by Region]
+from train 
 ```
 
 Task 19: Calculate the average sales for each Region alongside each order's sales. Display Region, Product_Name, Sales, and the average sales of the respective region.
@@ -284,61 +289,107 @@ from train
 Task 20: Calculate the running total (cumulative sum) of sales ordered by Sales in ascending order across the dataset. Display Product_Name, Sales, and the cumulative running total
 
 ```sql
-
+select
+Product_Name,
+Sales,
+sum(Sales) over  (order by Sales asc rows between unbounded preceding and current row) as Running_Total
+from train
 ```
 
-Task 21:
+Task 21: Calculate the running total (cumulative sum) of sales within each Category, ordered by Sales in ascending order, using the proper row framing. Display Category, Product_Name, Sales, and the partitioned running total.
 
 ```sql
-
+select category,
+product_name,
+sales,
+sum(sales) over(partition by category order by sales asc rows between unbounded preceding and current row) as Running_Total
+from train
 ```
 
-Task 22:
+Task 22: Calculate the moving or rolling average of Sales for each Category, ordering by Sales in ascending order, taking the current row and the preceding row (a 2-row moving window). Display Category, Product_Name, Sales, and the moving average.
 
 ```sql
-
+select category,
+product_name,
+sales,
+avg(sales) over(partition by category order by sales asc rows between 1  preceding and current row) as Moving_Average
+from train
 ```
 
-Task 23:
+Task 23: For each Sub_Category, find both the minimum sales and maximum sales alongside each product's sales using aggregate window functions. Display Sub_Category, Product_Name, Sales, Min_Sales_In_SubCat, and Max_Sales_In_SubCat.
 
 ```sql
-
+select Sub_Category,
+product_name,
+sales,
+min(sales) over(partition by sub_category) as Min_Sales_In_SubCat,
+max(sales) over(partition by sub_category) as Max_Sales_In_SubCat
+from train
 ```
 
-Task 24:
+Task 24: Calculate the total count of orders (rows) for each Ship_Mode alongside each product's sales, using an aggregate window function. Display Ship_Mode, Product_Name, Sales, and the total count of orders in that respective ship mode.
 
 ```sql
-
+select Ship_Mode,
+product_name,
+sales,
+count(*) over(partition by ship_mode) as Total_Orders_By_Ship_Mode
+from train
 ```
 
-Task 25:
+Task 25: Calculate each product's sales as a percentage of its respective Category's total sales. Display Category, Product_Name, Sales, and the percentage share
 
 ```sql
-
+select category,
+product_name,
+sales,
+sum(sales) over(partition by category),
+cast(sales *100 / sum(sales) over(partition by category) as decimal(10,4))
+from train
 ```
 
-Task 26:
+Task 26: Calculate the difference between each product's sales and the average sales of its respective Category. (Subtract the category average from the individual sales). Display Category, Product_Name, Sales, and the difference column.
 
 ```sql
-
+select category,
+product_name,
+sales,
+avg(sales) over(partition by category),
+sales-avg(sales) over(partition by category) 
+from train
 ```
 
-Task 27:
+Task 27: Find the maximum sales across the entire dataset and display it alongside every row, but also calculate how much each product's sales are below that overall maximum. Display Product_Name, Sales, and the difference from the global maximum
 
 ```sql
-
+select category,
+product_name,
+sales,
+max(sales) over() as Global_Max_Sales,
+max(sales) over()-Sales as Diff_From_Global_Max
+from train
 ```
 
-Task 28:
+Task 28: For each order, display Region, Segment, Product_Name, and Sales. Alongside these fields, calculate the average sales (AVG) for each Region and the total sales (SUM) for each Segment using aggregate window functions.
 
 ```sql
-
+select Region,
+segment,
+Product_Name,
+sales,
+avg(sales) over(partition by region) as [Avg Sales in Region],
+sum(sales) over(partition by segment) as [Total Sales in Segment]
+from train
 ```
 
-Task 29:
+Task 29: For each order, display Ship_Mode, Segment, Product_Name, and Sales. Using an aggregate window function, calculate the total sales for each Ship_Mode
 
 ```sql
-
+select Ship_Mode,
+product_name,
+sales,
+sum(sales) over (partition by ship_mode) as Total_Sales_By_Ship_Mode
+from train 
 ```
 
 Task 30:
