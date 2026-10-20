@@ -275,15 +275,9 @@ avg(sales) over (partition by region) as [Average Sales by Region]
 from train 
 ```
 
-Task 19: Calculate the average sales for each Region alongside each order's sales. Display Region, Product_Name, Sales, and the average sales of the respective region.
-
+Task 19: 
 ```sql
-select
-Region,
-product_name,
-sales,
-avg(sales) over (partition by region) as [Average Sales by Region]
-from train
+
 ```
 
 Task 20: Calculate the running total (cumulative sum) of sales ordered by Sales in ascending order across the dataset. Display Product_Name, Sales, and the cumulative running total
@@ -392,4 +386,18 @@ sum(sales) over (partition by ship_mode) as Total_Sales_By_Ship_Mode
 from train 
 ```
 
-Task 30:
+Task 30: For each order, display State, City, Product_Name, and Sales. Using aggregate window functions, calculate:
+
+The total sales for each State as State_Total_Sales.
+
+The total sales for each City as City_Total_Sales.
+
+The percentage share of the city's sales relative to its state's total sales (rounded to 2 decimal places).
+
+```sql
+select state,city,
+sum(sales) over(partition by state,city) as City_Total_Sales,
+sum(sales) over(partition by state) as State_Total_Sales,
+cast(round(sales*100.0/sum(sales)  over(partition by state), 2) as decimal(10,2)) as City_Share_Percentage
+from train
+```
