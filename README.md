@@ -275,9 +275,21 @@ avg(sales) over (partition by region) as [Average Sales by Region]
 from train 
 ```
 
-Task 19: 
-```sql
+Task 19: For each order, display Region, Category, Sub_Category, Product_Name, and Sales. Using aggregate window functions, calculate:
 
+The total sales (SUM) for each Category within each Region as Region_Category_Total_Sales.
+
+The average sales (AVG) for each Category across the entire dataset as Global_Category_Avg_Sales.
+
+```sql
+select region,
+category,
+sub_category,
+product_name,
+sales,
+sum(sales) over(partition by region,category) as Region_Category_Total_Sales,
+avg(sales) over(partition by category) as Global_Category_Avg_Sales
+from train
 ```
 
 Task 20: Calculate the running total (cumulative sum) of sales ordered by Sales in ascending order across the dataset. Display Product_Name, Sales, and the cumulative running total
