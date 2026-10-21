@@ -413,3 +413,77 @@ sum(sales) over(partition by state) as State_Total_Sales,
 cast(round(sales*100.0/sum(sales)  over(partition by state), 2) as decimal(10,2)) as City_Share_Percentage
 from train
 ```
+
+---
+
+Task 31: Display Category, Product_Name, and Sales. Alongside these, show the sales of the previous product within the same Category (ordered by Sales in ascending order) as Previous_Sales.
+
+```sql
+select Category,
+Product_Name,
+Sales,
+lag(sales,1,0) over( partition by category order by sales asc) as Previous_Sales
+from train
+```
+
+Task 32. Display Category, Product_Name, and Sales. Alongside these, show the sales of the next product within the same Category (ordered by Sales in descending order).
+
+```sql
+select Category,
+Product_Name,
+Sales,
+lead(sales,1,0) over( partition by category order by sales desc) as Previous_Sales
+from train
+```
+
+Task 33: Calculate the difference between each product's sales and the previous product's sales within the same Region (ordered by Sales in ascending order). Display Region, Product_Name, Sales, and the difference column.
+
+```sql
+select Region,
+Product_Name,
+Sales,
+lag(sales,1,0) over( partition by region order by sales asc) as Previous_Sales,
+Sales- lag(sales,1,0) over( partition by region order by sales asc) as Sales_Diff_From_Previous
+from train
+```
+
+Task 34. Calculate the difference between the next product's sales and each product's sales within the same Region (ordered by Sales in descending order). Display Region, Product_Name, Sales, and the difference column.
+
+```sql
+select Region,
+Product_Name,
+Sales,
+lead(sales,1,0) over( partition by region order by sales desc) as Next_Sales,
+lead(sales,1,0) over( partition by region order by sales desc)-Sales as Sales_Diff_From_Next
+from train
+```
+
+Task 35: Display Category, Product_Name, and Sales. Alongside these, show the lowest (first) sales value within each Category (ordered by Sales in ascending order).
+
+```sql
+select Category,
+Product_Name,
+Sales,
+FIRST_VALUE (Sales) over( partition by category order by sales asc) as Lowest_Sales_In_Category
+from train
+```
+
+Task 36: Function, display Sub_Category, Product_Name, and Sales. Alongside these, show the highest (last) sales value within each Sub_Category (ordered by Sales in ascending order).
+
+```sql
+select Sub_Category,
+Product_Name,
+Sales,
+last_value (Sales) over( partition by sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Highest_Sales_In_SubCategory
+from train
+```
+Task 37: Function, compare each product's sales with the product sold immediately before it, categorized by Segment and ordered by Order_Date. Display Segment, Order_Date, Product_Name, Sales, and the previous sales amount as Prev_Segment_Sales
+
+```sql
+select Segment,
+Order_Date,
+Product_Name,
+Sales,
+lag(Sales,1,0) over( partition by segment order by order_date asc) as Prev_Segment_Sales
+from train
+```
