@@ -529,7 +529,7 @@ lead(sales,1,0) over(partition by region,segment order by sales asc) -lag(sales,
 from train
 ```
 
-Task 41. Display Ship_Mode, Sub_Category, Product_Name, and Sales. Alongside these, show the highest sales value within each Ship_Mode and Sub_Category combination (ordered by Sales in descending order) as Highest_Sales
+**Task 41. Display Ship_Mode, Sub_Category, Product_Name, and Sales. Alongside these, show the highest sales value within each Ship_Mode and Sub_Category combination (ordered by Sales in descending order) as Highest_Sales**
 
 ```sql
 select Ship_Mode,
@@ -541,7 +541,7 @@ first_value(sales) over (partition by ship_mode,sub_category order by sales desc
 from train
 ```
 
-Task 42. Using the LAST_VALUE() function, display Segment, State, Product_Name, and Sales. Alongside these, show the lowest (last) sales value within each Segment and State combination.
+**Task 42. Using the LAST_VALUE() function, display Segment, State, Product_Name, and Sales. Alongside these, show the lowest (last) sales value within each Segment and State combinatio**n.
 
 ```sql
 select Segment,
@@ -552,7 +552,7 @@ last_value(sales) over (partition by segment,state order by sales desc ROWS BETW
 from train
 ```
 
-Task 43. Using the LAG() function with an offset of 2, display Region, Category, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows before within the same Region and Category (ordered by Sales in ascending order) as Sales_2_Rows_Before.
+**Task 43. Using the LAG() function with an offset of 2, display Region, Category, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows before within the same Region and Category (ordered by Sales in ascending order) as Sales_2_Rows_Before.**
 
 ```sql
 select Region,
@@ -563,7 +563,7 @@ lag(sales,2,0) over (partition by region,category order by sales asc) as Sales_2
 from train
 ```
 
-Task 44. Using the LEAD() function with an offset of 2, display Region, Segment, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows ahead within the same Region and Segment (ordered by Sales in descending order) as Sales_2_Rows_Ahead.
+**Task 44. Using the LEAD() function with an offset of 2, display Region, Segment, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows ahead within the same Region and Segment (ordered by Sales in descending order) as Sales_2_Rows_Ahead.**
 
 ```sql
 select Region,
@@ -573,13 +573,10 @@ sales,
 lead(sales,2,0) over (partition by region,segment order by sales desc) as Sales_2_Rows_Ahead
 from train
 ```
-Task 45. or each order, display Region, Sub_Category, Product_Name, and Sales. Using value/offset functions, calculate:
-
+**Task 45. or each order, display Region, Sub_Category, Product_Name, and Sales. Using value/offset functions, calculate:
 The first (lowest) sales value within the same Region and Sub_Category (ordered by Sales in ascending order) as First_Sales.
-
 The last (highest) sales value within the same Region and Sub_Category (ordered by Sales in ascending order, using ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Last_Sales.
-
-The difference between the highest and lowest sales (Last_Sales - First_Sales) as SubCat_Sales_Range.
+The difference between the highest and lowest sales (Last_Sales - First_Sales) as SubCat_Sales_Range.**
 
 ```sql
 select Region,
@@ -589,5 +586,56 @@ sales,
 first_value(sales) over (partition by region,sub_category order by sales asc) as First_Sales,
 last_value(sales) over (partition by region,sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Last_Sales,
 last_value(sales) over (partition by region,sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)-first_value(sales) over (partition by region,sub_category order by sales asc) as [Last_Sales - First_Sales]
+from train
+```
+
+**Task 46. Using the PERCENTILE_CONT() function, calculate the median (50th percentile, i.e., 0.5) of Sales for each Region. Display Region and name the calculated percentile column as Median_Sales_Cont.**
+
+```sql
+select region,
+sales,
+percentile_cont(0.50) within group (order by sales ) over (partition by region) as Median_Sales_Cont
+from train
+```
+
+**Task 47. Using the PERCENTILE_DISC() function, calculate the 25th percentile (0.25) of Sales for each Category. Display Category, Product_Name, Sales, and the calculated discrete percentile column as Sales_25th_Disc.**
+
+```sql
+select Category,
+Product_Name,
+sales,
+percentile_disc(0.25) within group (order by sales ) over (partition by category) as Sales_25th_Disc
+from train
+```
+
+**Task 48. Calculate the 75th percentile (0.75) of Sales for each Segment using both PERCENTILE_CONT() and PERCENTILE_DISC(). Display Segment, Product_Name, Sales, PERCENTILE_CONT(0.75) as Sales_75th_Cont, and PERCENTILE_DISC(0.75) as Sales_75th_Disc in the same query to visually compare their outputs.**
+
+```sql
+select Segment,
+Product_Name,
+sales,
+percentile_disc(0.75) within group (order by sales ) over (partition by segment) as Sales_75th_Disc,
+percentile_cont(0.75) within group (order by sales ) over (partition by segment) as Sales_75th_Cont
+from train
+```
+**Task 49. Using PERCENTILE_CONT(), calculate the median (0.50) sales for each combination of Region and Category. Display Region, Category, Product_Name, Sales, and the calculated median as Median_Sales_Region_Category.**
+
+```sql
+select Region,
+Category,
+Product_Name,
+sales,
+percentile_cont(0.50) within group (order by sales ) over (partition by region,category) as Median_Sales_Region_Category
+from train
+```
+
+**Task 50. Using PERCENTILE_DISC(), calculate the 90th percentile (0.90) of Sales for each State (ordered by Sales). Display State, Customer_Name, Product_Name, Sales, and the 90th percentile value as Sales_90th_Percentile_Disc.**
+
+```sql
+select state,
+Customer_Name,
+Product_Name,
+sales,
+percentile_disc(0.90) within group (order by sales ) over (partition by state) as Sales_90th_Percentile_Disc
 from train
 ```
