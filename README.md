@@ -487,3 +487,107 @@ Sales,
 lag(Sales,1,0) over( partition by segment order by order_date asc) as Prev_Segment_Sales
 from train
 ```
+
+Task 38. Compare each order's sales with the next order's sales within the same State, ordered by Order_Date and Sales. Display State, Order_Date, Product_Name, Sales, and the next sales amount
+
+```sql
+select state,
+order_date,
+product_name,
+sales,
+lead(sales,1,0) over(partition by state order by order_date,sales) as Next_State_Sales
+from train
+```
+
+Task 39. Find the highest sales value within each City (ordered by Sales in descending order). Display City, Customer_Name, Product_Name, Sales, and the highest city sales
+
+```sql
+select city,
+Customer_Name,
+product_name,
+sales,
+FIRST_VALUE(sales) over(partition by city order by sales desc) as Max_Sales_in_City
+from train
+```
+Task 40. For each order, display Region, Segment, Product_Name, and Sales. Using value/offset functions, calculate:
+
+The sales of the previous product within the same Region and Segment (ordered by Sales in ascending order) as Prev_Sales.
+
+The sales of the next product within the same Region and Segment (ordered by Sales in ascending order) as Next_Sales.
+
+The difference between the next sales and the previous sales (Next_Sales - Prev_Sales) as Sales_Range_Span.
+
+```sql
+select Region,
+segment,
+Customer_Name,
+product_name,
+sales,
+lag(sales,1,0) over(partition by region,segment order by sales asc) as Prev_Sales,
+lead(sales,1,0) over(partition by region,segment order by sales asc) as Next_Sales,
+lead(sales,1,0) over(partition by region,segment order by sales asc) -lag(sales,1,0) over(partition by region,segment order by sales asc) as Sales_Range_Span
+from train
+```
+
+Task 41. Display Ship_Mode, Sub_Category, Product_Name, and Sales. Alongside these, show the highest sales value within each Ship_Mode and Sub_Category combination (ordered by Sales in descending order) as Highest_Sales
+
+```sql
+select Ship_Mode,
+Sub_Category,
+Customer_Name,
+product_name,
+sales,
+first_value(sales) over (partition by ship_mode,sub_category order by sales desc) as Highest_Sales
+from train
+```
+
+Task 42. Using the LAST_VALUE() function, display Segment, State, Product_Name, and Sales. Alongside these, show the lowest (last) sales value within each Segment and State combination.
+
+```sql
+select Segment,
+State,
+Product_Name,
+sales,
+last_value(sales) over (partition by segment,state order by sales desc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Lowest_Sales_In_State_Segment
+from train
+```
+
+Task 43. Using the LAG() function with an offset of 2, display Region, Category, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows before within the same Region and Category (ordered by Sales in ascending order) as Sales_2_Rows_Before.
+
+```sql
+select Region,
+Category,
+Product_Name,
+sales,
+lag(sales,2,0) over (partition by region,category order by sales asc) as Sales_2_Rows_Before
+from train
+```
+
+Task 44. Using the LEAD() function with an offset of 2, display Region, Segment, Product_Name, and Sales. Alongside these, show the sales of the product from 2 rows ahead within the same Region and Segment (ordered by Sales in descending order) as Sales_2_Rows_Ahead.
+
+```sql
+select Region,
+Segment,
+Product_Name,
+sales,
+lead(sales,2,0) over (partition by region,segment order by sales desc) as Sales_2_Rows_Ahead
+from train
+```
+Task 45. or each order, display Region, Sub_Category, Product_Name, and Sales. Using value/offset functions, calculate:
+
+The first (lowest) sales value within the same Region and Sub_Category (ordered by Sales in ascending order) as First_Sales.
+
+The last (highest) sales value within the same Region and Sub_Category (ordered by Sales in ascending order, using ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Last_Sales.
+
+The difference between the highest and lowest sales (Last_Sales - First_Sales) as SubCat_Sales_Range.
+
+```sql
+select Region,
+Sub_Category,
+Product_Name,
+sales,
+first_value(sales) over (partition by region,sub_category order by sales asc) as First_Sales,
+last_value(sales) over (partition by region,sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Last_Sales,
+last_value(sales) over (partition by region,sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)-first_value(sales) over (partition by region,sub_category order by sales asc) as [Last_Sales - First_Sales]
+from train
+```
