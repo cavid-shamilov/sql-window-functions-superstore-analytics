@@ -22,6 +22,9 @@ This distinction is important when calculating order counts, ranking sales recor
 ### Project Objective
 
 The objective is to strengthen advanced SQL skills through practical exercises, understand the differences between window functions, and apply them to common analytical scenarios involving sales performance, customer activity, product comparisons, and geographic segmentation.
+
+---
+
 Task 1: Write a query to assign a unique sequential integer to each order record in the table, ordered by Order_Date in ascending order. Display Row_ID, Order_ID, Order_Date, Sales, and the row number.
 
 ```sql
