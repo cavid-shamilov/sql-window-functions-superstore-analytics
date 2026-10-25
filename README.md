@@ -1,6 +1,27 @@
 # sql-window-functions-superstore-analytics
-A comprehensive guide and practice repository for advanced SQL Window Functions (Ranking, Aggregate, and Offset) using the Superstore Sales dataset in MS SQL Server.
+## Project Overview
 
+This project demonstrates the practical application of advanced SQL window functions using the Superstore sales dataset in Microsoft SQL Server.
+
+The repository contains 50 SQL practice tasks covering ranking, aggregate, offset, value, and percentile window functions. Each task focuses on a specific analytical question and explores how window functions can be used to compare records, rank sales, calculate group-level metrics, and analyze values across related rows without collapsing the underlying dataset.
+
+### Key Areas Covered
+
+- **Ranking and Distribution:** `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()`, `NTILE()`, `PERCENT_RANK()`, and `CUME_DIST()`
+- **Window Aggregations:** `SUM()`, `AVG()`, `MIN()`, `MAX()`, and `COUNT()`
+- **Running Totals and Moving Averages:** Cumulative sales and rolling calculations
+- **Offset and Value Functions:** `LAG()`, `LEAD()`, `FIRST_VALUE()`, and `LAST_VALUE()`
+- **Percentile Analysis:** `PERCENTILE_CONT()` and `PERCENTILE_DISC()`
+
+### Dataset
+
+The project uses a Superstore sales dataset containing order, customer, product, geographic, shipping, and sales information. Each row represents an order line, meaning a single order can appear in multiple rows when it contains multiple products or line items.
+
+This distinction is important when calculating order counts, ranking sales records, and interpreting row-level analytical results.
+
+### Project Objective
+
+The objective is to strengthen advanced SQL skills through practical exercises, understand the differences between window functions, and apply them to common analytical scenarios involving sales performance, customer activity, product comparisons, and geographic segmentation.
 Task 1: Write a query to assign a unique sequential integer to each order record in the table, ordered by Order_Date in ascending order. Display Row_ID, Order_ID, Order_Date, Sales, and the row number.
 
 ```sql
