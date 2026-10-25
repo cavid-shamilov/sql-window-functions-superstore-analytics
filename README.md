@@ -16,6 +16,7 @@ The repository contains 50 SQL practice tasks covering ranking, aggregate, offse
 ### Dataset
 
 The project uses a Superstore sales dataset containing order, customer, product, geographic, shipping, and sales information. Each row represents an order line, meaning a single order can appear in multiple rows when it contains multiple products or line items.
+[Dataset link](https://www.kaggle.com/datasets/rohitsahoo/sales-forecasting)
 
 This distinction is important when calculating order counts, ranking sales records, and interpreting row-level analytical results.
 
@@ -31,7 +32,8 @@ Task 1: Write a query to assign a unique sequential integer to each order record
 select row_number () over (order by Order_date asc) as Runk_Number,
 Row_ID,
 order_id,
-Order_Date
+Order_Date,
+sales
 from train
 ```
 Task 2: Rank all sales records within each Category based on the Sales amount in descending order. Use DENSE_RANK() so that there are no gaps in the ranking sequence if sales amounts are tied. Include Category, Product_Name, Sales, and the calculated rank in the output
@@ -75,7 +77,7 @@ customer_name,
 order_id,
 order_date,
 sales,
-row_number () over (partition by customer_name order by order_date) as Sales_Rank
+row_number () over (partition by customer_id order by order_date) as Sales_Rank
 from train
 )
 select customer_id,
@@ -111,7 +113,7 @@ Task 7: Calculate the cumulative distribution (CUME_DIST()) of each order based 
 ```sql
 select Order_ID,
 Sales,	
-cast(cume_dist  () over ( order by sales asc) as decimal(10,4)) 
+cast(cume_dist  () over ( order by sales asc) as decimal(10,4)) as Cumulative_Distribution
 from train
 ```
 
@@ -223,7 +225,7 @@ Sales_Rank
 from Ranked_Sales
 ```
 
-Task 14: For each Region, find the orders that fall into the top 20% of sales by using PERCENT_RANK() greater than or equal to 0.80. Display orders where the percentile rank is >=0.80% within each region. Display Region, Product_Name, Sales, and the calculated percentile rank
+Task 14: For each Region, find the orders that fall into the top 20% of sales by using PERCENT_RANK() greater than or equal to 0.80. Display orders where the percentile rank is >=0.80 within each region. Display Region, Product_Name, Sales, and the calculated percentile rank
 
 ```sql
 with Ranked_Sales as (
@@ -231,7 +233,7 @@ select
 Region,
 product_name,
 sales,
-cast(PERCENT_RANK () over (partition by region order by sales asc) as decimal(10,4)) as Percent_Rank
+PERCENT_RANK () over (partition by region order by sales asc) as Percent_Rank
 from train
 
 )
@@ -239,12 +241,12 @@ select
 Region,
 product_name,
 sales,
-Percent_Rank
+cast(Percent_Rank as decimal(10,2))
 from Ranked_Sales
 where Percent_Rank >= 0.80
 ```
 
-Task 15: For each Segment, assign a dense rank to all products based on their Sales in descending order, and also calculate the overall total sales per product using window aggregation. Display Segment, Product_Name, Sales, the dense rank, and the calculated segment total sales.
+Task 15:For each Segment, assign a dense rank to all sales records based on their Sales amount in descending order, and calculate the total sales for the entire Segment using a window aggregate. Display Segment, Product_Name, Sales, the dense rank, and the total sales for the corresponding Segment.
 
 ```sql
 with Ranked_Sales as (
@@ -363,33 +365,33 @@ Task 24: Calculate the total count of orders (rows) for each Ship_Mode alongside
 select Ship_Mode,
 product_name,
 sales,
-count(*) over(partition by ship_mode) as Total_Orders_By_Ship_Mode
+count(*) over(partition by ship_mode) as Total_Rows_By_Ship_Mode
 from train
 ```
 
-Task 25: Calculate each product's sales as a percentage of its respective Category's total sales. Display Category, Product_Name, Sales, and the percentage share
+**Task 25: Calculate each product's sales as a percentage of its respective Category's total sales. Display Category, Product_Name, Sales, and the percentage share.**
 
 ```sql
 select category,
 product_name,
 sales,
-sum(sales) over(partition by category),
-cast(sales *100 / sum(sales) over(partition by category) as decimal(10,4))
+sum(sales) over(partition by category) as Category_Total_Sales,
+cast(sales *100.0 / sum(sales) over(partition by category) as decimal(10,4)) as Sales_Percentage
 from train
 ```
 
-Task 26: Calculate the difference between each product's sales and the average sales of its respective Category. (Subtract the category average from the individual sales). Display Category, Product_Name, Sales, and the difference column.
+**Task 26: Calculate the difference between each product's sales and the average sales of its respective Category. (Subtract the category average from the individual sales). Display Category, Product_Name, Sales, and the difference column.**
 
 ```sql
 select category,
 product_name,
 sales,
-avg(sales) over(partition by category),
-sales-avg(sales) over(partition by category) 
+avg(sales) over(partition by category) as Category_Avg_Sales,
+sales-avg(sales) over(partition by category) as Difference_From_Category_Avg
 from train
 ```
 
-Task 27: Find the maximum sales across the entire dataset and display it alongside every row, but also calculate how much each product's sales are below that overall maximum. Display Product_Name, Sales, and the difference from the global maximum
+**Task 27: Find the maximum sales across the entire dataset and display it alongside every row, but also calculate how much each product's sales are below that overall maximum. Display Product_Name, Sales, and the difference from the global maximum.**
 
 ```sql
 select category,
@@ -400,7 +402,7 @@ max(sales) over()-Sales as Diff_From_Global_Max
 from train
 ```
 
-Task 28: For each order, display Region, Segment, Product_Name, and Sales. Alongside these fields, calculate the average sales (AVG) for each Region and the total sales (SUM) for each Segment using aggregate window functions.
+**Task 28: For each order, display Region, Segment, Product_Name, and Sales. Alongside these fields, calculate the average sales (AVG) for each Region and the total sales (SUM) for each Segment using aggregate window functions.**
 
 ```sql
 select Region,
@@ -412,35 +414,39 @@ sum(sales) over(partition by segment) as [Total Sales in Segment]
 from train
 ```
 
-Task 29: For each order, display Ship_Mode, Segment, Product_Name, and Sales. Using an aggregate window function, calculate the total sales for each Ship_Mode
+**Task 29: For each order, display Ship_Mode, Segment, Product_Name, and Sales. Using an aggregate window function, calculate the total sales for each Ship_Mode.**
 
 ```sql
 select Ship_Mode,
+segment,
 product_name,
 sales,
 sum(sales) over (partition by ship_mode) as Total_Sales_By_Ship_Mode
 from train 
 ```
 
-Task 30: For each order, display State, City, Product_Name, and Sales. Using aggregate window functions, calculate:
-
+**Task 30: For each order, display State, City, Product_Name, and Sales. Using aggregate window functions, calculate:
 The total sales for each State as State_Total_Sales.
-
 The total sales for each City as City_Total_Sales.
-
-The percentage share of the city's sales relative to its state's total sales (rounded to 2 decimal places).
+The percentage share of the city's sales relative to its state's total sales (rounded to 2 decimal places).**
 
 ```sql
-select state,city,
+WITH CityStateSales as (
+select state,city,product_name,sales,
 sum(sales) over(partition by state,city) as City_Total_Sales,
-sum(sales) over(partition by state) as State_Total_Sales,
-cast(round(sales*100.0/sum(sales)  over(partition by state), 2) as decimal(10,2)) as City_Share_Percentage
+sum(sales) over(partition by state) as State_Total_Sales
 from train
+)
+select state,city,product_name,sales,
+City_Total_Sales,
+State_Total_Sales,
+CAST(ROUND(100.0 * City_Total_Sales/ NULLIF(State_Total_Sales, 0), 2) AS DECIMAL(10,2)) AS City_Share_Percentage
+FROM CityStateSales
 ```
 
 ---
 
-Task 31: Display Category, Product_Name, and Sales. Alongside these, show the sales of the previous product within the same Category (ordered by Sales in ascending order) as Previous_Sales.
+**Task 31: Display Category, Product_Name, and Sales. Alongside these, show the sales of the previous product within the same Category (ordered by Sales in ascending order) as Previous_Sales.**
 
 ```sql
 select Category,
@@ -450,39 +456,39 @@ lag(sales,1,0) over( partition by category order by sales asc) as Previous_Sales
 from train
 ```
 
-Task 32. Display Category, Product_Name, and Sales. Alongside these, show the sales of the next product within the same Category (ordered by Sales in descending order).
+**Task 32. Display Category, Product_Name, and Sales. Alongside these, show the sales of the next product within the same Category (ordered by Sales in descending order).**
 
 ```sql
 select Category,
 Product_Name,
 Sales,
-lead(sales,1,0) over( partition by category order by sales desc) as Previous_Sales
+lead(sales,1,0) over( partition by category order by sales desc) as Next_Sales
 from train
 ```
 
-Task 33: Calculate the difference between each product's sales and the previous product's sales within the same Region (ordered by Sales in ascending order). Display Region, Product_Name, Sales, and the difference column.
+**Task 33: Calculate the difference between each product's sales and the previous product's sales within the same Region (ordered by Sales in ascending order). Display Region, Product_Name, Sales, and the difference column.**
 
 ```sql
 select Region,
 Product_Name,
 Sales,
-lag(sales,1,0) over( partition by region order by sales asc) as Previous_Sales,
+lag(sales) over( partition by region order by sales asc) as Previous_Sales,
 Sales- lag(sales,1,0) over( partition by region order by sales asc) as Sales_Diff_From_Previous
 from train
 ```
 
-Task 34. Calculate the difference between the next product's sales and each product's sales within the same Region (ordered by Sales in descending order). Display Region, Product_Name, Sales, and the difference column.
+**Task 34. Calculate the difference between the next product's sales and each product's sales within the same Region (ordered by Sales in descending order). Display Region, Product_Name, Sales, and the difference column.**
 
 ```sql
 select Region,
 Product_Name,
 Sales,
-lead(sales,1,0) over( partition by region order by sales desc) as Next_Sales,
-lead(sales,1,0) over( partition by region order by sales desc)-Sales as Sales_Diff_From_Next
+lead(sales) over( partition by region order by sales desc) as Next_Sales,
+lead(sales) over( partition by region order by sales desc)-Sales as Sales_Diff_From_Next
 from train
 ```
 
-Task 35: Display Category, Product_Name, and Sales. Alongside these, show the lowest (first) sales value within each Category (ordered by Sales in ascending order).
+**Task 35: Display Category, Product_Name, and Sales. Alongside these, show the lowest (first) sales value within each Category (ordered by Sales in ascending order).**
 
 ```sql
 select Category,
@@ -492,7 +498,7 @@ FIRST_VALUE (Sales) over( partition by category order by sales asc) as Lowest_Sa
 from train
 ```
 
-Task 36: Function, display Sub_Category, Product_Name, and Sales. Alongside these, show the highest (last) sales value within each Sub_Category (ordered by Sales in ascending order).
+**Task 36: Function, display Sub_Category, Product_Name, and Sales. Alongside these, show the highest (last) sales value within each Sub_Category (ordered by Sales in ascending order).**
 
 ```sql
 select Sub_Category,
@@ -501,29 +507,29 @@ Sales,
 last_value (Sales) over( partition by sub_category order by sales asc ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as Highest_Sales_In_SubCategory
 from train
 ```
-Task 37: Function, compare each product's sales with the product sold immediately before it, categorized by Segment and ordered by Order_Date. Display Segment, Order_Date, Product_Name, Sales, and the previous sales amount as Prev_Segment_Sales
+**Task 37: Function, compare each product's sales with the product sold immediately before it, categorized by Segment and ordered by Order_Date. Display Segment, Order_Date, Product_Name, Sales, and the previous sales amount as Prev_Segment_Sales**
 
 ```sql
 select Segment,
 Order_Date,
 Product_Name,
 Sales,
-lag(Sales,1,0) over( partition by segment order by order_date asc) as Prev_Segment_Sales
+lag(Sales) over( partition by segment order by order_date asc,row_id asc) as Prev_Segment_Sales
 from train
 ```
 
-Task 38. Compare each order's sales with the next order's sales within the same State, ordered by Order_Date and Sales. Display State, Order_Date, Product_Name, Sales, and the next sales amount
+**Task 38. Compare each order's sales with the next order's sales within the same State, ordered by Order_Date and Sales. Display State, Order_Date, Product_Name, Sales, and the next sales amount**
 
 ```sql
 select state,
 order_date,
 product_name,
 sales,
-lead(sales,1,0) over(partition by state order by order_date,sales) as Next_State_Sales
+lead(sales) over(partition by state order by order_date,sales,row_id asc) as Next_State_Sales
 from train
 ```
 
-Task 39. Find the highest sales value within each City (ordered by Sales in descending order). Display City, Customer_Name, Product_Name, Sales, and the highest city sales
+**Task 39. Find the highest sales value within each City (ordered by Sales in descending order). Display City, Customer_Name, Product_Name, Sales, and the highest city sales**
 
 ```sql
 select city,
@@ -533,24 +539,32 @@ sales,
 FIRST_VALUE(sales) over(partition by city order by sales desc) as Max_Sales_in_City
 from train
 ```
-Task 40. For each order, display Region, Segment, Product_Name, and Sales. Using value/offset functions, calculate:
 
+**Task 40. For each order, display Region, Segment, Product_Name, and Sales. Using value/offset functions, calculate:
 The sales of the previous product within the same Region and Segment (ordered by Sales in ascending order) as Prev_Sales.
-
 The sales of the next product within the same Region and Segment (ordered by Sales in ascending order) as Next_Sales.
-
-The difference between the next sales and the previous sales (Next_Sales - Prev_Sales) as Sales_Range_Span.
+The difference between the next sales and the previous sales (Next_Sales - Prev_Sales) as Sales_Range_Span.**
 
 ```sql
+WITH SalesOffsets AS (
 select Region,
 segment,
 Customer_Name,
 product_name,
 sales,
-lag(sales,1,0) over(partition by region,segment order by sales asc) as Prev_Sales,
-lead(sales,1,0) over(partition by region,segment order by sales asc) as Next_Sales,
-lead(sales,1,0) over(partition by region,segment order by sales asc) -lag(sales,1,0) over(partition by region,segment order by sales asc) as Sales_Range_Span
+lag(sales) over(partition by region,segment order by sales asc) as Prev_Sales,
+lead(sales) over(partition by region,segment order by sales asc) as Next_Sales
 from train
+)
+SELECT
+Region,
+Segment,
+Product_Name,
+Sales,
+Prev_Sales,
+Next_Sales,
+Next_Sales - Prev_Sales AS Sales_Range_Span
+FROM SalesOffsets
 ```
 
 **Task 41. Display Ship_Mode, Sub_Category, Product_Name, and Sales. Alongside these, show the highest sales value within each Ship_Mode and Sub_Category combination (ordered by Sales in descending order) as Highest_Sales**
@@ -558,10 +572,9 @@ from train
 ```sql
 select Ship_Mode,
 Sub_Category,
-Customer_Name,
 product_name,
 sales,
-first_value(sales) over (partition by ship_mode,sub_category order by sales desc) as Highest_Sales
+first_value(sales) over (partition by ship_mode, sub_category order by sales desc, row_id asc) as Highest_Sales
 from train
 ```
 
@@ -616,8 +629,7 @@ from train
 **Task 46. Using the PERCENTILE_CONT() function, calculate the median (50th percentile, i.e., 0.5) of Sales for each Region. Display Region and name the calculated percentile column as Median_Sales_Cont.**
 
 ```sql
-select region,
-sales,
+select distinct region,
 percentile_cont(0.50) within group (order by sales ) over (partition by region) as Median_Sales_Cont
 from train
 ```
